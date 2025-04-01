@@ -1,0 +1,14 @@
+C:\Users\Tomaj\CascadeProjects\ChessConquestGUI\bin\Debug\net6.0-windows\ChessConquestGUI.exe
+C:\Users\Tomaj\CascadeProjects\ChessConquestGUI\bin\Debug\net6.0-windows\ChessConquestGUI.deps.json
+C:\Users\Tomaj\CascadeProjects\ChessConquestGUI\bin\Debug\net6.0-windows\ChessConquestGUI.runtimeconfig.json
+C:\Users\Tomaj\CascadeProjects\ChessConquestGUI\bin\Debug\net6.0-windows\ChessConquestGUI.dll
+C:\Users\Tomaj\CascadeProjects\ChessConquestGUI\bin\Debug\net6.0-windows\ChessConquestGUI.pdb
+C:\Users\Tomaj\CascadeProjects\ChessConquestGUI\obj\Debug\net6.0-windows\ChessConquestGUI.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Tomaj\CascadeProjects\ChessConquestGUI\obj\Debug\net6.0-windows\ChessConquestGUI.AssemblyInfoInputs.cache
+C:\Users\Tomaj\CascadeProjects\ChessConquestGUI\obj\Debug\net6.0-windows\ChessConquestGUI.AssemblyInfo.cs
+C:\Users\Tomaj\CascadeProjects\ChessConquestGUI\obj\Debug\net6.0-windows\ChessConquestGUI.csproj.CoreCompileInputs.cache
+C:\Users\Tomaj\CascadeProjects\ChessConquestGUI\obj\Debug\net6.0-windows\ChessConquestGUI.dll
+C:\Users\Tomaj\CascadeProjects\ChessConquestGUI\obj\Debug\net6.0-windows\refint\ChessConquestGUI.dll
+C:\Users\Tomaj\CascadeProjects\ChessConquestGUI\obj\Debug\net6.0-windows\ChessConquestGUI.pdb
+C:\Users\Tomaj\CascadeProjects\ChessConquestGUI\obj\Debug\net6.0-windows\ChessConquestGUI.genruntimeconfig.cache
+C:\Users\Tomaj\CascadeProjects\ChessConquestGUI\obj\Debug\net6.0-windows\ref\ChessConquestGUI.dll
