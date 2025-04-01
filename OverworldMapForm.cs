@@ -97,59 +97,251 @@ namespace ChessConquestGUI
                     }
                 }
 
-                // Randomly place territories on the grid
-                List<MapPosition> positions = new List<MapPosition>();
-                for (int x = 0; x < gridSize; x++)
-                {
-                    for (int y = 0; y < gridSize; y++)
-                    {
-                        positions.Add(new MapPosition(x, y));
-                    }
-                }
-
-                positions = positions.OrderBy(p => random.Next()).ToList();
-
-                // Create new territories with the randomized positions
-                List<Territory> newTerritories = new List<Territory>();
-                for (int i = 0; i < territories.Count && i < positions.Count; i++)
-                {
-                    Territory oldTerritory = territories[i];
-                    if (oldTerritory == null) continue;
-                    
-                    Territory newTerritory = new Territory(oldTerritory.Name, positions[i]);
-                    Faction? owner = oldTerritory.Owner;
-                    
-                    // Update the faction's territories
-                    if (owner != null)
-                    {
-                        owner.RemoveTerritory(oldTerritory);
-                        owner.AddTerritory(newTerritory);
-                    }
-
-                    newTerritories.Add(newTerritory);
-                    overworld.AddTerritory(newTerritory);
-                }
-
-                // Set adjacencies based on grid positions
-                foreach (Territory territory in newTerritories)
-                {
-                    if (territory == null) continue;
-                    
-                    foreach (Territory otherTerritory in newTerritories)
-                    {
-                        if (otherTerritory == null || territory == otherTerritory) continue;
-                        
-                        if (IsAdjacent(territory.Position, otherTerritory.Position))
-                        {
-                            territory.AddAdjacentTerritory(otherTerritory);
-                        }
-                    }
-                }
+                // Generate a connected map using a modified approach
+                GenerateConnectedMap(territories);
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error initializing overworld: {ex.Message}", "Initialization Error", 
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void GenerateConnectedMap(List<Territory> territories)
+        {
+            // Create a grid of positions
+            List<MapPosition> allPositions = new List<MapPosition>();
+            for (int x = 0; x < gridSize; x++)
+            {
+                for (int y = 0; y < gridSize; y++)
+                {
+                    allPositions.Add(new MapPosition(x, y));
+                }
+            }
+
+            // Shuffle the positions
+            allPositions = allPositions.OrderBy(p => random.Next()).ToList();
+
+            // Group territories by faction
+            var factionTerritories = territories
+                .Where(t => t.Owner != null)
+                .GroupBy(t => t.Owner)
+                .ToDictionary(g => g.Key!, g => g.ToList());
+
+            // Select positions for our territories
+            Dictionary<Faction, List<MapPosition>> factionPositions = new Dictionary<Faction, List<MapPosition>>();
+            List<MapPosition> selectedPositions = new List<MapPosition>();
+            List<Territory> processedTerritories = new List<Territory>();
+
+            // Process each faction one by one to ensure their territories are adjacent
+            foreach (var faction in factionTerritories.Keys)
+            {
+                if (faction == null) continue;
+                
+                List<Territory> factionsTerritoriesList = factionTerritories[faction];
+                List<MapPosition> factionsPositions = new List<MapPosition>();
+                factionPositions[faction] = factionsPositions;
+
+                // If this is the first faction, start at a random position
+                if (selectedPositions.Count == 0)
+                {
+                    MapPosition firstPosition = allPositions[0];
+                    selectedPositions.Add(firstPosition);
+                    factionsPositions.Add(firstPosition);
+                    allPositions.RemoveAt(0);
+                }
+                else
+                {
+                    // For subsequent factions, find a position adjacent to existing territories
+                    List<MapPosition> adjacentToExisting = new List<MapPosition>();
+                    
+                    foreach (MapPosition existingPos in selectedPositions)
+                    {
+                        foreach (MapPosition candidatePos in allPositions)
+                        {
+                            if (IsAdjacent(existingPos, candidatePos) && !adjacentToExisting.Contains(candidatePos))
+                            {
+                                adjacentToExisting.Add(candidatePos);
+                            }
+                        }
+                    }
+                    
+                    if (adjacentToExisting.Count > 0)
+                    {
+                        // Choose a random adjacent position for the first territory of this faction
+                        MapPosition firstFactionPos = adjacentToExisting[random.Next(adjacentToExisting.Count)];
+                        selectedPositions.Add(firstFactionPos);
+                        factionsPositions.Add(firstFactionPos);
+                        allPositions.Remove(firstFactionPos);
+                    }
+                    else if (allPositions.Count > 0)
+                    {
+                        // Fallback if no adjacent positions
+                        MapPosition firstFactionPos = allPositions[0];
+                        selectedPositions.Add(firstFactionPos);
+                        factionsPositions.Add(firstFactionPos);
+                        allPositions.RemoveAt(0);
+                    }
+                }
+
+                // Add remaining territories for this faction, ensuring they're adjacent to other territories of the same faction
+                for (int i = 1; i < factionsTerritoriesList.Count && allPositions.Count > 0; i++)
+                {
+                    // Find positions adjacent to this faction's existing territories
+                    List<MapPosition> adjacentToFaction = new List<MapPosition>();
+                    
+                    foreach (MapPosition factionPos in factionsPositions)
+                    {
+                        foreach (MapPosition candidatePos in allPositions)
+                        {
+                            if (IsAdjacent(factionPos, candidatePos) && !adjacentToFaction.Contains(candidatePos))
+                            {
+                                adjacentToFaction.Add(candidatePos);
+                            }
+                        }
+                    }
+                    
+                    if (adjacentToFaction.Count > 0)
+                    {
+                        // Choose a random adjacent position
+                        MapPosition nextPosition = adjacentToFaction[random.Next(adjacentToFaction.Count)];
+                        selectedPositions.Add(nextPosition);
+                        factionsPositions.Add(nextPosition);
+                        allPositions.Remove(nextPosition);
+                    }
+                    else if (allPositions.Count > 0)
+                    {
+                        // If no adjacent positions to faction territories, find positions adjacent to any territory
+                        List<MapPosition> adjacentToAny = new List<MapPosition>();
+                        
+                        foreach (MapPosition existingPos in selectedPositions)
+                        {
+                            foreach (MapPosition candidatePos in allPositions)
+                            {
+                                if (IsAdjacent(existingPos, candidatePos) && !adjacentToAny.Contains(candidatePos))
+                                {
+                                    adjacentToAny.Add(candidatePos);
+                                }
+                            }
+                        }
+                        
+                        if (adjacentToAny.Count > 0)
+                        {
+                            MapPosition nextPosition = adjacentToAny[random.Next(adjacentToAny.Count)];
+                            selectedPositions.Add(nextPosition);
+                            factionsPositions.Add(nextPosition);
+                            allPositions.Remove(nextPosition);
+                        }
+                        else if (allPositions.Count > 0)
+                        {
+                            // Last resort
+                            MapPosition nextPosition = allPositions[0];
+                            selectedPositions.Add(nextPosition);
+                            factionsPositions.Add(nextPosition);
+                            allPositions.RemoveAt(0);
+                        }
+                    }
+                }
+                
+                // Add the faction's territories to processed list
+                processedTerritories.AddRange(factionsTerritoriesList);
+            }
+            
+            // Handle any remaining territories (like neutral ones)
+            var remainingTerritories = territories.Except(processedTerritories).ToList();
+            foreach (var territory in remainingTerritories)
+            {
+                if (allPositions.Count == 0) break;
+                
+                // Find positions adjacent to any existing territory
+                List<MapPosition> adjacentPositions = new List<MapPosition>();
+                
+                foreach (MapPosition existingPos in selectedPositions)
+                {
+                    foreach (MapPosition candidatePos in allPositions)
+                    {
+                        if (IsAdjacent(existingPos, candidatePos) && !adjacentPositions.Contains(candidatePos))
+                        {
+                            adjacentPositions.Add(candidatePos);
+                        }
+                    }
+                }
+                
+                if (adjacentPositions.Count > 0)
+                {
+                    MapPosition nextPosition = adjacentPositions[random.Next(adjacentPositions.Count)];
+                    selectedPositions.Add(nextPosition);
+                    allPositions.Remove(nextPosition);
+                }
+                else if (allPositions.Count > 0)
+                {
+                    MapPosition nextPosition = allPositions[0];
+                    selectedPositions.Add(nextPosition);
+                    allPositions.RemoveAt(0);
+                }
+            }
+
+            // Create new territories with the connected positions
+            Dictionary<Territory, MapPosition> territoryPositions = new Dictionary<Territory, MapPosition>();
+            
+            // First assign positions to faction territories
+            foreach (var faction in factionTerritories.Keys)
+            {
+                if (faction == null || !factionPositions.ContainsKey(faction)) continue;
+                
+                var factionsTerritoriesList = factionTerritories[faction];
+                var factionsPositions = factionPositions[faction];
+                
+                for (int i = 0; i < factionsTerritoriesList.Count && i < factionsPositions.Count; i++)
+                {
+                    territoryPositions[factionsTerritoriesList[i]] = factionsPositions[i];
+                }
+            }
+            
+            // Then assign positions to any remaining territories
+            var unassignedTerritories = territories.Where(t => !territoryPositions.ContainsKey(t)).ToList();
+            var unassignedPositions = selectedPositions.Where(p => !territoryPositions.Values.Contains(p)).ToList();
+            
+            for (int i = 0; i < unassignedTerritories.Count && i < unassignedPositions.Count; i++)
+            {
+                territoryPositions[unassignedTerritories[i]] = unassignedPositions[i];
+            }
+            
+            // Create new territories with the assigned positions
+            List<Territory> newTerritories = new List<Territory>();
+            foreach (var territory in territories)
+            {
+                if (!territoryPositions.ContainsKey(territory)) continue;
+                
+                MapPosition position = territoryPositions[territory];
+                Territory newTerritory = new Territory(territory.Name, position);
+                Faction? owner = territory.Owner;
+                
+                // Update the faction's territories
+                if (owner != null)
+                {
+                    owner.RemoveTerritory(territory);
+                    owner.AddTerritory(newTerritory);
+                }
+
+                newTerritories.Add(newTerritory);
+                overworld?.AddTerritory(newTerritory);
+            }
+
+            // Set adjacencies based on grid positions
+            foreach (Territory territory in newTerritories)
+            {
+                if (territory == null) continue;
+                
+                foreach (Territory otherTerritory in newTerritories)
+                {
+                    if (otherTerritory == null || territory == otherTerritory) continue;
+                    
+                    if (IsAdjacent(territory.Position, otherTerritory.Position))
+                    {
+                        territory.AddAdjacentTerritory(otherTerritory);
+                    }
+                }
             }
         }
 
