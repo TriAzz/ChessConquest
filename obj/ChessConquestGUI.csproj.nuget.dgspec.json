@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Tomaj\\CascadeProjects\\ChessConquestMain\\ChessConquestGUI\\ChessConquestGUI.csproj": {}
+    "C:\\Uni\\Capstone\\Projects\\ChessConquest\\ChessConquestGUI.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Tomaj\\CascadeProjects\\ChessConquestMain\\ChessConquestGUI\\ChessConquestGUI.csproj": {
+    "C:\\Uni\\Capstone\\Projects\\ChessConquest\\ChessConquestGUI.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Tomaj\\CascadeProjects\\ChessConquestMain\\ChessConquestGUI\\ChessConquestGUI.csproj",
+        "projectUniqueName": "C:\\Uni\\Capstone\\Projects\\ChessConquest\\ChessConquestGUI.csproj",
         "projectName": "ChessConquestGUI",
-        "projectPath": "C:\\Users\\Tomaj\\CascadeProjects\\ChessConquestMain\\ChessConquestGUI\\ChessConquestGUI.csproj",
+        "projectPath": "C:\\Uni\\Capstone\\Projects\\ChessConquest\\ChessConquestGUI.csproj",
         "packagesPath": "C:\\Users\\Tomaj\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Tomaj\\CascadeProjects\\ChessConquestMain\\ChessConquestGUI\\obj\\",
+        "outputPath": "C:\\Uni\\Capstone\\Projects\\ChessConquest\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Tomaj\\AppData\\Roaming\\NuGet\\NuGet.Config",

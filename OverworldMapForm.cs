@@ -20,6 +20,28 @@ namespace ChessConquestGUI
         private readonly int gridSize = 5;
         private readonly int mapPadding = 50;
         private bool devModeEnabled = false;
+        private bool hasAttackedThisTurn = false;
+        
+        // Bank of territory names
+        private readonly List<string> territoryNameBank = new List<string>
+        {
+            // Medieval/Fantasy settlement names
+            "Ironhold", "Stormwatch", "Shadowfen", "Oakvale", "Ravencrest",
+            "Frostpeak", "Silverkeep", "Dragonspire", "Blackwater", "Highgarden",
+            "Westmarch", "Duskwood", "Sunhaven", "Moonbrook", "Windhelm",
+            "Eaglecrest", "Wolfden", "Bearhollow", "Foxburrow", "Hawkridge",
+            "Liongate", "Serpentcoil", "Griffonreach", "Phoenixrest", "Unicornvale",
+            
+            // Geographic feature names
+            "Misty Vale", "Amber Hills", "Crystal Lake", "Emerald Forest", "Ruby Canyon",
+            "Sapphire Bay", "Diamond Peak", "Jade Plains", "Obsidian Cliffs", "Pearl Harbor",
+            "Golden Fields", "Silver Springs", "Bronze Plateau", "Copper Marsh", "Iron Mountains",
+            
+            // Strategic location names
+            "Northern Outpost", "Eastern Garrison", "Western Stronghold", "Southern Bastion",
+            "Central Citadel", "Coastal Watchtower", "Mountain Fortress", "Forest Hideout",
+            "Desert Sanctuary", "River Crossing"
+        };
 
         public OverworldMapForm()
         {
@@ -58,43 +80,49 @@ namespace ChessConquestGUI
                 // Create overworld
                 overworld = new Overworld();
 
-                // Create factions
-                Faction northernKingdom = new Faction("Northern Kingdom", ConsoleColor.Blue);
-                Faction easternEmpire = new Faction("Eastern Empire", ConsoleColor.Red);
-                Faction westernAlliance = new Faction("Western Alliance", ConsoleColor.Green);
-                Faction southernDominion = new Faction("Southern Dominion", ConsoleColor.Yellow);
-                Faction neutralFaction = new Faction("Neutral Territories", ConsoleColor.Gray);
+                // Create factions with thematic names not tied to directions
+                Faction ironLegion = new Faction("Iron Legion", ConsoleColor.Blue);
+                Faction crimsonOrder = new Faction("Crimson Order", ConsoleColor.Red);
+                Faction emeraldCovenant = new Faction("Emerald Covenant", ConsoleColor.Green);
+                Faction goldenDynasty = new Faction("Golden Dynasty", ConsoleColor.Yellow);
+                Faction shadowCollective = new Faction("Shadow Collective", ConsoleColor.Gray);
 
                 // Add factions to overworld
-                overworld.AddFaction(northernKingdom);
-                overworld.AddFaction(easternEmpire);
-                overworld.AddFaction(westernAlliance);
-                overworld.AddFaction(southernDominion);
-                overworld.AddFaction(neutralFaction);
+                overworld.AddFaction(ironLegion);
+                overworld.AddFaction(crimsonOrder);
+                overworld.AddFaction(emeraldCovenant);
+                overworld.AddFaction(goldenDynasty);
+                overworld.AddFaction(shadowCollective);
 
                 // Set player faction
-                playerFaction = northernKingdom;
+                playerFaction = ironLegion;
                 overworld.PlayerFaction = playerFaction;
 
-                // Create territories
+                // Shuffle the territory name bank to ensure random selection
+                List<string> shuffledNames = new List<string>(territoryNameBank);
+                shuffledNames = shuffledNames.OrderBy(n => random.Next()).ToList();
+                
+                // Create territories with unique names
                 List<Territory> territories = new List<Territory>();
-                for (int i = 0; i < 15; i++)
+                int territoryCount = Math.Min(15, shuffledNames.Count);
+                
+                for (int i = 0; i < territoryCount; i++)
                 {
-                    Territory territory = new Territory($"Territory {i + 1}", new MapPosition(0, 0));
+                    Territory territory = new Territory(shuffledNames[i], new MapPosition(0, 0));
                     territories.Add(territory);
                 }
 
                 // Assign territories to factions (3 each)
                 for (int i = 0; i < 3; i++)
                 {
-                    northernKingdom.AddTerritory(territories[i]);
-                    easternEmpire.AddTerritory(territories[i + 3]);
-                    westernAlliance.AddTerritory(territories[i + 6]);
-                    southernDominion.AddTerritory(territories[i + 9]);
+                    ironLegion.AddTerritory(territories[i]);
+                    crimsonOrder.AddTerritory(territories[i + 3]);
+                    emeraldCovenant.AddTerritory(territories[i + 6]);
+                    goldenDynasty.AddTerritory(territories[i + 9]);
                     
                     if (i < territories.Count - 12)
                     {
-                        neutralFaction.AddTerritory(territories[i + 12]);
+                        shadowCollective.AddTerritory(territories[i + 12]);
                     }
                 }
 
@@ -464,6 +492,18 @@ namespace ChessConquestGUI
                 devModeEnabled = devModeCheckBox.Checked;
             };
             controlPanel.Controls.Add(devModeCheckBox);
+            
+            // Create turn status label
+            Label turnStatusLabel = new Label
+            {
+                Name = "turnStatusLabel",
+                Text = "You can attack one territory this turn.",
+                Font = new Font("Arial", 10),
+                Location = new Point(10, 40),
+                Size = new Size(180, 20),
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+            controlPanel.Controls.Add(turnStatusLabel);
 
             // Create selected territory info
             GroupBox territoryInfoBox = new GroupBox
@@ -591,6 +631,14 @@ namespace ChessConquestGUI
                 return;
             }
 
+            // Check if the player has already attacked this turn
+            if (hasAttackedThisTurn)
+            {
+                MessageBox.Show("You can only attack once per turn. End your turn to attack again.",
+                               "Turn Limit Reached", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
             // Check if the selected territory is adjacent to any player territory
             bool canAttack = selectedTerritory.AdjacentTerritories.Any(t => t.Owner == playerFaction);
             if (!canAttack)
@@ -606,6 +654,9 @@ namespace ChessConquestGUI
 
         private void EndTurnButton_Click(object? sender, EventArgs e)
         {
+            // Reset the attack flag for the next turn
+            hasAttackedThisTurn = false;
+            
             // Process AI turns
             ProcessAITurns();
 
@@ -667,8 +718,10 @@ namespace ChessConquestGUI
                     adjacentTerritoriesLabel.Text = $"Adjacent Territories: {selectedTerritory.AdjacentTerritories.Count}";
 
                     // Enable attack button if the territory is not owned by the player and is adjacent to a player territory
+                    // Also check if the player has already attacked this turn
                     bool canAttack = selectedTerritory.Owner != playerFaction &&
-                                    selectedTerritory.AdjacentTerritories.Any(t => t.Owner == playerFaction);
+                                    selectedTerritory.AdjacentTerritories.Any(t => t.Owner == playerFaction) &&
+                                    !hasAttackedThisTurn;
                     attackButton.Enabled = canAttack;
                 }
                 else
@@ -697,6 +750,13 @@ namespace ChessConquestGUI
                         factionListView.Items.Add(item);
                     }
                 }
+            }
+
+            // Update turn status
+            Label? turnStatusLabel = this.Controls.Find("turnStatusLabel", true).FirstOrDefault() as Label;
+            if (turnStatusLabel != null)
+            {
+                turnStatusLabel.Text = hasAttackedThisTurn ? "You have already attacked this turn." : "You can attack one territory this turn.";
             }
 
             // Refresh the form to update the connections
@@ -750,6 +810,9 @@ namespace ChessConquestGUI
                                        "Territory Conquered", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
 
+                    // Mark that the player has attacked this turn
+                    hasAttackedThisTurn = true;
+
                     // Update the UI
                     UpdateUI();
 
@@ -770,6 +833,12 @@ namespace ChessConquestGUI
                 {
                     MessageBox.Show($"You failed to conquer {territory.Name}.",
                                    "Battle Lost", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    
+                    // Mark that the player has attacked this turn
+                    hasAttackedThisTurn = true;
+                    
+                    // Update the UI
+                    UpdateUI();
                     
                     devModeForm.Close();
                 };
@@ -808,6 +877,9 @@ namespace ChessConquestGUI
                     MessageBox.Show($"You failed to conquer {territory.Name}.",
                                    "Battle Lost", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
+
+                // Mark that the player has attacked this turn
+                hasAttackedThisTurn = true;
 
                 // Update the UI
                 UpdateUI();
