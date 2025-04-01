@@ -763,10 +763,20 @@ namespace ChessConquestGUI
             this.Invalidate();
         }
 
-        private void StartBattle(Territory territory)
+        private void StartBattle(Territory territory, bool playerIsAttacker = true, Faction? attackingFaction = null)
         {
-            // Check if Dev Mode is enabled
-            if (devModeEnabled)
+            // Determine attacker and defender factions
+            Faction? attackerFaction = playerIsAttacker ? playerFaction : (attackingFaction ?? territory.Owner);
+            Faction? defenderFaction = playerIsAttacker ? territory.Owner : playerFaction;
+            
+            if (attackerFaction == null || defenderFaction == null)
+            {
+                MessageBox.Show("Error: Invalid battle configuration.", "Battle Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            
+            // Check if Dev Mode is enabled and player is involved
+            if (devModeEnabled && (playerIsAttacker || !playerIsAttacker))
             {
                 // Create a dialog to choose win or lose
                 Form devModeForm = new Form
@@ -781,37 +791,43 @@ namespace ChessConquestGUI
 
                 Label promptLabel = new Label
                 {
-                    Text = "Choose the battle outcome:",
+                    Text = $"Choose the battle outcome for {(playerIsAttacker ? "your attack on" : "defense of")} {territory.Name}:",
                     Location = new Point(20, 20),
-                    Size = new Size(260, 20)
+                    Size = new Size(260, 30)
                 };
                 devModeForm.Controls.Add(promptLabel);
 
-                Button winButton = new Button
+                Button playerWinsButton = new Button
                 {
-                    Text = "Win Battle",
-                    Location = new Point(20, 50),
+                    Text = $"{(playerIsAttacker ? "Attacker" : "Defender")} Wins",
+                    Location = new Point(20, 60),
                     Size = new Size(120, 30)
                 };
-                winButton.Click += (sender, e) =>
+                playerWinsButton.Click += (sender, e) =>
                 {
                     // Player wins the battle
-                    if (territory.Owner != null)
+                    if (defenderFaction != playerFaction)
                     {
-                        territory.Owner.RemoveTerritory(territory);
-                    }
-
-                    if (playerFaction != null)
-                    {
-                        playerFaction.AddTerritory(territory);
-                        territory.Owner = playerFaction;
+                        // Player is attacker and wins
+                        defenderFaction.RemoveTerritory(territory);
+                        attackerFaction.AddTerritory(territory);
+                        territory.Owner = attackerFaction;
 
                         MessageBox.Show($"You have conquered {territory.Name}!",
                                        "Territory Conquered", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
+                    else
+                    {
+                        // Player is defender and wins
+                        MessageBox.Show($"You successfully defended {territory.Name}!",
+                                       "Territory Defended", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
 
-                    // Mark that the player has attacked this turn
-                    hasAttackedThisTurn = true;
+                    // Mark that the player has attacked this turn if they were the attacker
+                    if (playerIsAttacker)
+                    {
+                        hasAttackedThisTurn = true;
+                    }
 
                     // Update the UI
                     UpdateUI();
@@ -821,65 +837,107 @@ namespace ChessConquestGUI
                     
                     devModeForm.Close();
                 };
-                devModeForm.Controls.Add(winButton);
+                devModeForm.Controls.Add(playerWinsButton);
 
-                Button loseButton = new Button
+                Button playerLosesButton = new Button
                 {
-                    Text = "Lose Battle",
-                    Location = new Point(150, 50),
+                    Text = $"{(playerIsAttacker ? "Defender" : "Attacker")} Wins",
+                    Location = new Point(150, 60),
                     Size = new Size(120, 30)
                 };
-                loseButton.Click += (sender, e) =>
+                playerLosesButton.Click += (sender, e) =>
                 {
-                    MessageBox.Show($"You failed to conquer {territory.Name}.",
-                                   "Battle Lost", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    if (playerIsAttacker)
+                    {
+                        // Player is attacker and loses
+                        MessageBox.Show($"You failed to conquer {territory.Name}.",
+                                      "Battle Lost", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    else
+                    {
+                        // Player is defender and loses
+                        playerFaction.RemoveTerritory(territory);
+                        attackerFaction.AddTerritory(territory);
+                        territory.Owner = attackerFaction;
+                        
+                        MessageBox.Show($"You lost {territory.Name} to {attackerFaction.Name}!",
+                                      "Territory Lost", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
                     
-                    // Mark that the player has attacked this turn
-                    hasAttackedThisTurn = true;
+                    // Mark that the player has attacked this turn if they were the attacker
+                    if (playerIsAttacker)
+                    {
+                        hasAttackedThisTurn = true;
+                    }
                     
                     // Update the UI
                     UpdateUI();
                     
+                    // Check for game over
+                    CheckGameOver();
+                    
                     devModeForm.Close();
                 };
-                devModeForm.Controls.Add(loseButton);
+                devModeForm.Controls.Add(playerLosesButton);
 
                 devModeForm.ShowDialog();
                 return;
             }
 
-            // Normal battle mode (unchanged)
-            Game game = new Game(PieceColor.White);
+            // Normal battle mode - chess game
+            // Defender always plays as white
+            PieceColor playerColor = playerIsAttacker ? PieceColor.Black : PieceColor.White;
+            Game game = new Game(playerColor);
 
             // Open the chess game form
             ChessGameForm chessForm = new ChessGameForm(game, $"Battle for {territory.Name}");
             chessForm.GameOver += (sender, e) =>
             {
-                // If the player won, take control of the territory
-                if (e.Winner == game.PlayerColor)
+                bool playerWon = e.Winner == game.PlayerColor;
+                
+                if (playerIsAttacker)
                 {
-                    if (territory.Owner != null)
+                    // Player is attacking
+                    if (playerWon)
                     {
-                        territory.Owner.RemoveTerritory(territory);
-                    }
-
-                    if (playerFaction != null)
-                    {
-                        playerFaction.AddTerritory(territory);
-                        territory.Owner = playerFaction;
+                        // Player conquered the territory
+                        defenderFaction.RemoveTerritory(territory);
+                        attackerFaction.AddTerritory(territory);
+                        territory.Owner = attackerFaction;
 
                         MessageBox.Show($"You have conquered {territory.Name}!",
                                        "Territory Conquered", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
+                    else
+                    {
+                        // Player failed to conquer
+                        MessageBox.Show($"You failed to conquer {territory.Name}.",
+                                       "Battle Lost", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    
+                    // Mark that the player has attacked this turn
+                    hasAttackedThisTurn = true;
                 }
                 else
                 {
-                    MessageBox.Show($"You failed to conquer {territory.Name}.",
-                                   "Battle Lost", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    // Player is defending
+                    if (playerWon)
+                    {
+                        // Player successfully defended
+                        MessageBox.Show($"You successfully defended {territory.Name}!",
+                                       "Territory Defended", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    else
+                    {
+                        // Player lost the territory
+                        playerFaction.RemoveTerritory(territory);
+                        attackerFaction.AddTerritory(territory);
+                        territory.Owner = attackerFaction;
+                        
+                        MessageBox.Show($"You lost {territory.Name} to {attackerFaction.Name}!",
+                                       "Territory Lost", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
                 }
-
-                // Mark that the player has attacked this turn
-                hasAttackedThisTurn = true;
 
                 // Update the UI
                 UpdateUI();
@@ -893,7 +951,7 @@ namespace ChessConquestGUI
 
         private void ProcessAITurns()
         {
-            // Simple AI: Each AI faction tries to attack one adjacent territory
+            // Each AI faction gets one attack per turn
             if (overworld?.Factions != null)
             {
                 foreach (Faction faction in overworld.Factions)
@@ -921,30 +979,60 @@ namespace ChessConquestGUI
                     if (adjacentTerritories.Count > 0)
                     {
                         Territory targetTerritory = adjacentTerritories.ElementAt(random.Next(adjacentTerritories.Count));
-
-                        // 50% chance to successfully attack
-                        bool success = random.Next(2) == 0;
-                        if (success)
+                        
+                        // If the target territory belongs to the player, initiate a player vs AI battle
+                        if (targetTerritory.Owner == playerFaction)
                         {
-                            // Take control of the territory
-                            if (targetTerritory.Owner != null)
+                            // Notify the player they are being attacked
+                            MessageBox.Show($"{faction.Name} is attacking your territory {targetTerritory.Name}!",
+                                           "Territory Under Attack", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            
+                            // AI is attacking player territory
+                            StartBattle(targetTerritory, false, faction);
+                        }
+                        else
+                        {
+                            // AI vs AI battle - resolve with RNG
+                            // 50% chance for attacker to win
+                            bool attackerWins = random.Next(2) == 0;
+                            
+                            if (attackerWins)
                             {
-                                targetTerritory.Owner.RemoveTerritory(targetTerritory);
+                                // Attacker wins
+                                Faction? defenderFaction = targetTerritory.Owner;
+                                if (defenderFaction != null)
+                                {
+                                    defenderFaction.RemoveTerritory(targetTerritory);
+                                    
+                                    // Notify the player if an AI faction was eliminated
+                                    if (defenderFaction.Territories.Count == 0)
+                                    {
+                                        MessageBox.Show($"{defenderFaction.Name} has been eliminated by {faction.Name}!",
+                                                      "Faction Eliminated", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                    }
+                                }
+                                
+                                faction.AddTerritory(targetTerritory);
+                                targetTerritory.Owner = faction;
+                                
+                                // Optional: Notify player of significant AI conquests
+                                if (random.Next(3) == 0) // 1/3 chance to show message to avoid too many popups
+                                {
+                                    MessageBox.Show($"{faction.Name} has conquered {targetTerritory.Name}!",
+                                                  "Territory Conquered", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                }
                             }
-
-                            faction.AddTerritory(targetTerritory);
-                            targetTerritory.Owner = faction;
-
-                            // Notify the player if their territory was taken
-                            if (targetTerritory.Owner == playerFaction)
-                            {
-                                MessageBox.Show($"{faction.Name} has conquered your territory {targetTerritory.Name}!",
-                                               "Territory Lost", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                            }
+                            // If attacker loses, nothing happens to the territory
                         }
                     }
                 }
             }
+            
+            // Update the UI after all AI turns
+            UpdateUI();
+            
+            // Check for game over conditions
+            CheckGameOver();
         }
 
         private void CheckGameOver()
