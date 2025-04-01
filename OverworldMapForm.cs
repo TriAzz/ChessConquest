@@ -19,6 +19,7 @@ namespace ChessConquestGUI
         private readonly int territoryButtonSize = 80;
         private readonly int gridSize = 5;
         private readonly int mapPadding = 50;
+        private bool devModeEnabled = false;
 
         public OverworldMapForm()
         {
@@ -449,12 +450,27 @@ namespace ChessConquestGUI
             };
             controlPanel.Controls.Add(titleLabel);
 
+            // Create Dev Mode checkbox
+            CheckBox devModeCheckBox = new CheckBox
+            {
+                Text = "Dev Mode",
+                Name = "devModeCheckBox",
+                Font = new Font("Arial", 10),
+                Location = new Point(200, 40),
+                Size = new Size(90, 20),
+                Checked = devModeEnabled
+            };
+            devModeCheckBox.CheckedChanged += (sender, e) => {
+                devModeEnabled = devModeCheckBox.Checked;
+            };
+            controlPanel.Controls.Add(devModeCheckBox);
+
             // Create selected territory info
             GroupBox territoryInfoBox = new GroupBox
             {
                 Text = "Selected Territory",
                 Font = new Font("Arial", 12),
-                Location = new Point(10, 50),
+                Location = new Point(10, 70),
                 Size = new Size(280, 150)
             };
             controlPanel.Controls.Add(territoryInfoBox);
@@ -509,7 +525,7 @@ namespace ChessConquestGUI
             {
                 Text = "Faction Information",
                 Font = new Font("Arial", 12),
-                Location = new Point(10, 210),
+                Location = new Point(10, 230),
                 Size = new Size(280, 200)
             };
             controlPanel.Controls.Add(factionInfoBox);
@@ -534,7 +550,7 @@ namespace ChessConquestGUI
             {
                 Text = "End Turn",
                 Font = new Font("Arial", 12),
-                Location = new Point(10, 420),
+                Location = new Point(10, 440),
                 Size = new Size(280, 40)
             };
             endTurnButton.Click += EndTurnButton_Click;
@@ -544,7 +560,7 @@ namespace ChessConquestGUI
             {
                 Text = "Return to Main Menu",
                 Font = new Font("Arial", 12),
-                Location = new Point(10, 470),
+                Location = new Point(10, 490),
                 Size = new Size(280, 40)
             };
             returnToMenuButton.Click += ReturnToMenuButton_Click;
@@ -689,7 +705,81 @@ namespace ChessConquestGUI
 
         private void StartBattle(Territory territory)
         {
-            // Create a new game for the battle
+            // Check if Dev Mode is enabled
+            if (devModeEnabled)
+            {
+                // Create a dialog to choose win or lose
+                Form devModeForm = new Form
+                {
+                    Text = $"Dev Mode - Battle for {territory.Name}",
+                    Size = new Size(300, 150),
+                    FormBorderStyle = FormBorderStyle.FixedDialog,
+                    StartPosition = FormStartPosition.CenterParent,
+                    MaximizeBox = false,
+                    MinimizeBox = false
+                };
+
+                Label promptLabel = new Label
+                {
+                    Text = "Choose the battle outcome:",
+                    Location = new Point(20, 20),
+                    Size = new Size(260, 20)
+                };
+                devModeForm.Controls.Add(promptLabel);
+
+                Button winButton = new Button
+                {
+                    Text = "Win Battle",
+                    Location = new Point(20, 50),
+                    Size = new Size(120, 30)
+                };
+                winButton.Click += (sender, e) =>
+                {
+                    // Player wins the battle
+                    if (territory.Owner != null)
+                    {
+                        territory.Owner.RemoveTerritory(territory);
+                    }
+
+                    if (playerFaction != null)
+                    {
+                        playerFaction.AddTerritory(territory);
+                        territory.Owner = playerFaction;
+
+                        MessageBox.Show($"You have conquered {territory.Name}!",
+                                       "Territory Conquered", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+
+                    // Update the UI
+                    UpdateUI();
+
+                    // Check for game over
+                    CheckGameOver();
+                    
+                    devModeForm.Close();
+                };
+                devModeForm.Controls.Add(winButton);
+
+                Button loseButton = new Button
+                {
+                    Text = "Lose Battle",
+                    Location = new Point(150, 50),
+                    Size = new Size(120, 30)
+                };
+                loseButton.Click += (sender, e) =>
+                {
+                    MessageBox.Show($"You failed to conquer {territory.Name}.",
+                                   "Battle Lost", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    
+                    devModeForm.Close();
+                };
+                devModeForm.Controls.Add(loseButton);
+
+                devModeForm.ShowDialog();
+                return;
+            }
+
+            // Normal battle mode (unchanged)
             Game game = new Game(PieceColor.White);
 
             // Open the chess game form
