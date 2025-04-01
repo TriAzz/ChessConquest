@@ -1,6 +1,6 @@
 # Chess Conquest GUI
 
-This is a Windows Forms-based GUI version of the Chess Conquest game. The application allows players to interact with the chess board through a graphical interface, clicking and dragging pieces to make moves.
+This is a Windows Forms-based GUI version of the Chess Conquest game. The application allows players to interact with the chess board through a graphical interface, clicking and dragging pieces to make moves. The game also features an overworld campaign map where players can conquer territories through chess battles.
 
 ## Features
 
@@ -10,6 +10,36 @@ This is a Windows Forms-based GUI version of the Chess Conquest game. The applic
 - Game status display showing current turn and game state
 - Option to play as either White or Black
 - Support for all standard chess pieces plus the custom Vanguard piece
+- Strategic overworld campaign map with territory conquest
+- Multiple factions competing for control of the world
+
+## Overworld Campaign
+
+The overworld campaign adds a strategic layer to Chess Conquest:
+
+- **Territory Control**: Conquer territories by winning chess matches against opposing factions
+- **Faction Warfare**: Lead your faction (Iron Legion by default) to dominate the map
+- **Turn-Based Strategy**: Plan your conquests carefully as you can only attack once per turn
+- **Connected World**: The map generates as one connected landmass with unique territory names
+- **Faction Regions**: Each faction's territories are grouped together in contiguous regions
+- **Victory Conditions**: Achieve victory by conquering all territories on the map
+
+### Factions
+
+The world is divided between five competing factions:
+
+- **Iron Legion** (Blue) - The player's faction
+- **Crimson Order** (Red)
+- **Emerald Covenant** (Green)
+- **Golden Dynasty** (Yellow)
+- **Shadow Collective** (Gray)
+
+### Dev Mode
+
+For testing and quick play, the game includes a Dev Mode option:
+- Enable Dev Mode from the overworld control panel
+- When attacking in Dev Mode, you can choose to automatically win or lose battles
+- This allows for faster exploration of the campaign mechanics without playing full chess matches
 
 ## How to Build and Run
 
@@ -20,6 +50,7 @@ This is a Windows Forms-based GUI version of the Chess Conquest game. The applic
 
 ## Game Controls
 
+### Chess Board
 - Click on a piece to select it
 - Valid moves will be highlighted in green
 - Click on a highlighted square to move the selected piece
@@ -29,14 +60,26 @@ This is a Windows Forms-based GUI version of the Chess Conquest game. The applic
   - Set the AI difficulty level
   - Quit the application
 
+### Overworld Map
+- Click on territories to select them
+- Attack adjacent enemy territories to expand your faction's control
+- End your turn to allow AI factions to make their moves
+- Monitor faction status in the control panel
+- Enable Dev Mode for quick testing and gameplay
+
 ## Implementation Details
 
 The GUI application uses the same core chess logic as the console version, but wraps it in a Windows Forms interface for better user interaction. The main components are:
 
-- **MainForm**: The primary UI component that displays the chess board and game controls
+- **MainForm**: The primary UI component that displays the menu options
+- **ChessGameForm**: Handles the chess board display and gameplay
+- **OverworldMapForm**: Manages the campaign map and faction interactions
 - **Game**: The core game logic, handling moves, turns, and game state
 - **Board**: Manages the chess board state and piece positions
 - **Piece classes**: Define the behavior of each chess piece type
+- **Overworld**: Manages the campaign map state and faction territories
+- **Territory**: Represents a conquerable region on the map
+- **Faction**: Represents a competing power in the campaign
 
 ## Custom Pieces
 
