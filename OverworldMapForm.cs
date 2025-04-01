@@ -43,6 +43,8 @@ namespace ChessConquestGUI
             "Desert Sanctuary", "River Crossing"
         };
 
+        private readonly FactionArmy factionArmy = new FactionArmy();
+
         public OverworldMapForm()
         {
             InitializeComponent();
@@ -887,10 +889,25 @@ namespace ChessConquestGUI
             // Normal battle mode - chess game
             // Defender always plays as white
             PieceColor playerColor = playerIsAttacker ? PieceColor.Black : PieceColor.White;
-            Game game = new Game(playerColor);
+            
+            // Create a game with no initial setup
+            Game game = new Game(playerColor, false);
+            
+            // Get the faction armies for the battle
+            List<Piece> attackerArmy = factionArmy.GetFactionArmy(attackerFaction.Name, PieceColor.Black);
+            List<Piece> defenderArmy = factionArmy.GetFactionArmy(defenderFaction.Name, PieceColor.White);
+            
+            // Combine both armies and set up the custom game
+            List<Piece> allPieces = new List<Piece>();
+            allPieces.AddRange(attackerArmy);
+            allPieces.AddRange(defenderArmy);
+            game.SetupCustomGame(allPieces);
+            
+            // Create battle title with faction information
+            string battleTitle = $"Battle for {territory.Name}: {attackerFaction.Name} vs {defenderFaction.Name}";
 
             // Open the chess game form
-            ChessGameForm chessForm = new ChessGameForm(game, $"Battle for {territory.Name}");
+            ChessGameForm chessForm = new ChessGameForm(game, battleTitle);
             chessForm.GameOver += (sender, e) =>
             {
                 bool playerWon = e.Winner == game.PlayerColor;
