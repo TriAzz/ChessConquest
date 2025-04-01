@@ -12,6 +12,7 @@ This is a Windows Forms-based GUI version of the Chess Conquest game. The applic
 - Support for all standard chess pieces plus the custom Vanguard piece
 - Strategic overworld campaign map with territory conquest
 - Multiple factions competing for control of the world
+- Detailed turn-by-turn battle notifications
 
 ## Overworld Campaign
 
@@ -34,11 +35,32 @@ The world is divided between five competing factions:
 - **Golden Dynasty** (Yellow)
 - **Shadow Collective** (Gray)
 
+### Battle System
+
+The game features a comprehensive battle system:
+
+- **Defender Advantage**: In all battles, the defending faction plays as White in chess games
+- **One Attack Per Turn**: Each faction (including AI factions) can only make one attack per turn
+- **AI vs AI Battles**: When AI factions battle each other, the outcome is determined by a 50/50 chance
+- **Player Battles**: When the player is involved, battles are resolved through chess games
+- **Battle Notifications**: Detailed messages inform you about each battle's participants and outcome
+- **Territory Conquest**: Winning a battle as the attacker lets you take control of the territory
+
+### AI Turn Mechanics
+
+The AI factions follow a structured turn sequence:
+
+- **Turn Announcement**: Each AI faction's turn begins with an announcement
+- **Target Selection**: The AI selects a random adjacent enemy territory to attack
+- **Attack Notification**: You're informed which territory is being attacked and who owns it
+- **Battle Resolution**: AI vs AI battles are resolved with RNG, while AI vs Player battles use chess games
+- **Outcome Notification**: After each battle, you're informed of the result and any territory changes
+
 ### Dev Mode
 
 For testing and quick play, the game includes a Dev Mode option:
 - Enable Dev Mode from the overworld control panel
-- When attacking in Dev Mode, you can choose to automatically win or lose battles
+- When attacking or defending in Dev Mode, you can choose to automatically win or lose battles
 - This allows for faster exploration of the campaign mechanics without playing full chess matches
 
 ## How to Build and Run

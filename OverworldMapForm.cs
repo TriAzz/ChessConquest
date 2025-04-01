@@ -962,6 +962,10 @@ namespace ChessConquestGUI
                         continue;
                     }
 
+                    // Announce the faction's turn
+                    MessageBox.Show($"{faction.Name}'s Turn", 
+                                   "AI Turn", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
                     // Get all territories adjacent to this faction's territories
                     HashSet<Territory> adjacentTerritories = new HashSet<Territory>();
                     foreach (Territory territory in faction.Territories)
@@ -979,6 +983,11 @@ namespace ChessConquestGUI
                     if (adjacentTerritories.Count > 0)
                     {
                         Territory targetTerritory = adjacentTerritories.ElementAt(random.Next(adjacentTerritories.Count));
+                        string ownerName = targetTerritory.Owner?.Name ?? "Unowned";
+                        
+                        // Announce the attack
+                        MessageBox.Show($"{faction.Name} is attacking {targetTerritory.Name} (owned by {ownerName})",
+                                       "Territory Attack", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         
                         // If the target territory belongs to the player, initiate a player vs AI battle
                         if (targetTerritory.Owner == playerFaction)
@@ -1015,15 +1024,23 @@ namespace ChessConquestGUI
                                 faction.AddTerritory(targetTerritory);
                                 targetTerritory.Owner = faction;
                                 
-                                // Optional: Notify player of significant AI conquests
-                                if (random.Next(3) == 0) // 1/3 chance to show message to avoid too many popups
-                                {
-                                    MessageBox.Show($"{faction.Name} has conquered {targetTerritory.Name}!",
-                                                  "Territory Conquered", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                                }
+                                // Announce the battle outcome
+                                MessageBox.Show($"{faction.Name} has conquered {targetTerritory.Name}!",
+                                              "Battle Outcome", MessageBoxButtons.OK, MessageBoxIcon.Information);
                             }
-                            // If attacker loses, nothing happens to the territory
+                            else
+                            {
+                                // Defender wins
+                                MessageBox.Show($"{ownerName} successfully defended {targetTerritory.Name} against {faction.Name}!",
+                                              "Battle Outcome", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            }
                         }
+                    }
+                    else
+                    {
+                        // No valid targets to attack
+                        MessageBox.Show($"{faction.Name} has no valid territories to attack this turn.",
+                                       "No Attack", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
             }

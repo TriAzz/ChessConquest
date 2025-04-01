@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Uni\\Capstone\\Projects\\ChessConquest\\ChessConquestGUI.csproj",
+      "projectUniqueName": "C:\\Users\\Tomaj\\CascadeProjects\\ChessConquestMain\\ChessConquestGUI\\ChessConquestGUI.csproj",
       "projectName": "ChessConquestGUI",
-      "projectPath": "C:\\Uni\\Capstone\\Projects\\ChessConquest\\ChessConquestGUI.csproj",
+      "projectPath": "C:\\Users\\Tomaj\\CascadeProjects\\ChessConquestMain\\ChessConquestGUI\\ChessConquestGUI.csproj",
       "packagesPath": "C:\\Users\\Tomaj\\.nuget\\packages\\",
-      "outputPath": "C:\\Uni\\Capstone\\Projects\\ChessConquest\\obj\\",
+      "outputPath": "C:\\Users\\Tomaj\\CascadeProjects\\ChessConquestMain\\ChessConquestGUI\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Tomaj\\AppData\\Roaming\\NuGet\\NuGet.Config",
