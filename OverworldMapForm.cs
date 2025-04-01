@@ -347,10 +347,12 @@ namespace ChessConquestGUI
 
         private bool IsAdjacent(MapPosition a, MapPosition b)
         {
-            // Check if two positions are adjacent (horizontally, vertically, or diagonally)
+            // Check if two positions are adjacent (horizontally or vertically, but not diagonally)
             int dx = Math.Abs(a.X - b.X);
             int dy = Math.Abs(a.Y - b.Y);
-            return (dx <= 1 && dy <= 1) && !(dx == 0 && dy == 0);
+            
+            // Only consider horizontal or vertical adjacency (not diagonal)
+            return (dx == 1 && dy == 0) || (dx == 0 && dy == 1);
         }
 
         private void CreateOverworldMap()
