@@ -458,7 +458,7 @@ namespace ChessConquestGUI
             Panel controlPanel = new Panel
             {
                 Location = new Point(gridSize * territoryButtonSize + mapPadding * 3, mapPadding),
-                Size = new Size(300, gridSize * territoryButtonSize + mapPadding * 2),
+                Size = new Size(300, 620), 
                 BorderStyle = BorderStyle.FixedSingle
             };
             this.Controls.Add(controlPanel);
