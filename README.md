@@ -12,6 +12,7 @@ This is a Windows Forms-based GUI version of the Chess Conquest game. The applic
 - Support for all standard chess pieces plus the custom Vanguard piece
 - Strategic overworld campaign map with territory conquest
 - Multiple factions competing for control of the world
+- Faction selection screen with descriptions before starting a campaign
 - Detailed turn-by-turn battle notifications
 
 ## Overworld Campaign
@@ -19,7 +20,7 @@ This is a Windows Forms-based GUI version of the Chess Conquest game. The applic
 The overworld campaign adds a strategic layer to Chess Conquest:
 
 - **Territory Control**: Conquer territories by winning chess matches against opposing factions
-- **Faction Warfare**: Lead your faction (Iron Legion by default) to dominate the map
+- **Faction Warfare**: Choose your faction at the start of the campaign and lead it to dominate the map
 - **Turn-Based Strategy**: Plan your conquests carefully as you can only attack once per turn
 - **Connected World**: The map generates as one connected landmass with unique territory names
 - **Faction Regions**: Each faction's territories are grouped together in contiguous regions
@@ -27,13 +28,15 @@ The overworld campaign adds a strategic layer to Chess Conquest:
 
 ### Factions
 
-The world is divided between five competing factions:
+The world is divided between five competing factions, each with its own theme and description. (Future updates will add unique armies and abilities for each faction.)
 
-- **Iron Legion** (Blue) - The player's faction
+- **Iron Legion** (Blue)
 - **Crimson Order** (Red)
 - **Emerald Covenant** (Green)
 - **Golden Dynasty** (Yellow)
 - **Shadow Collective** (Gray)
+
+At the start of a campaign, you select which faction you want to play as. A description for each faction is shown in the selection screen.
 
 ### Battle System
 
@@ -96,6 +99,7 @@ The GUI application uses the same core chess logic as the console version, but w
 - **MainForm**: The primary UI component that displays the menu options
 - **ChessGameForm**: Handles the chess board display and gameplay
 - **OverworldMapForm**: Manages the campaign map and faction interactions
+- **FactionSelectionForm**: Lets you choose your faction before starting a campaign
 - **Game**: The core game logic, handling moves, turns, and game state
 - **Board**: Manages the chess board state and piece positions
 - **Piece classes**: Define the behavior of each chess piece type

@@ -46,8 +46,11 @@ namespace ChessConquestGUI
         private readonly int gridSize = 5;
         private readonly int mapPadding = 50;
 
-        public OverworldMapForm()
+        private string selectedFactionName;
+
+        public OverworldMapForm(string selectedFactionName)
         {
+            this.selectedFactionName = selectedFactionName;
             InitializeComponent();
 
             // Set up the form
@@ -91,8 +94,23 @@ namespace ChessConquestGUI
                 overworld.AddFaction(goldenDynasty);
                 overworld.AddFaction(shadowCollective);
 
-                // Set player faction
-                playerFaction = ironLegion;
+                // Set player faction based on selection
+                var factionsDict = new Dictionary<string, Faction>
+                {
+                    { "Iron Legion", ironLegion },
+                    { "Crimson Order", crimsonOrder },
+                    { "Emerald Covenant", emeraldCovenant },
+                    { "Golden Dynasty", goldenDynasty },
+                    { "Shadow Collective", shadowCollective }
+                };
+                if (selectedFactionName != null && factionsDict.ContainsKey(selectedFactionName))
+                {
+                    playerFaction = factionsDict[selectedFactionName];
+                }
+                else
+                {
+                    playerFaction = ironLegion; // fallback
+                }
                 overworld.PlayerFaction = playerFaction;
 
                 // Shuffle the territory name bank to ensure random selection

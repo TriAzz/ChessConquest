@@ -109,11 +109,16 @@ namespace ChessConquestGUI
         
         private void OverworldButton_Click(object? sender, EventArgs e)
         {
-            // Open the overworld map form
-            OverworldMapForm overworldForm = new OverworldMapForm();
-            this.Hide();
-            overworldForm.ShowDialog();
-            this.Show();
+            // Show the faction selection form first
+            var factionSelectionForm = new FactionSelectionForm(selectedFactionName =>
+            {
+                // After selection, open the overworld map form with the selected faction
+                OverworldMapForm overworldForm = new OverworldMapForm(selectedFactionName);
+                this.Hide();
+                overworldForm.ShowDialog();
+                this.Show();
+            });
+            factionSelectionForm.ShowDialog();
         }
         
         private void ChessMatchButton_Click(object? sender, EventArgs e)
