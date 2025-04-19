@@ -19,7 +19,8 @@ namespace ChessConquest
             { typeof(Rook), 500 },
             { typeof(Queen), 900 },
             { typeof(King), 20000 },
-            { typeof(Vanguard), 350 } // Vanguard is slightly more valuable than a Knight
+            { typeof(Vanguard), 350 }, // Vanguard is slightly more valuable than a Knight
+            { typeof(Cavalry), 380 }  // Cavalry is more valuable than a Knight and slightly more than a Vanguard
         };
 
         // Position value tables for improved evaluation
@@ -97,6 +98,18 @@ namespace ChessConquest
             {-30,  0, 15, 20, 20, 15,  0,-30 },
             {-30,  5, 10, 15, 15, 10,  5,-30 },
             {-40,-20,  0,  5,  5,  0,-20,-40 },
+            {-50,-40,-30,-30,-30,-30,-40,-50 }
+        };
+
+        // Added positional values for Cavalry
+        private static readonly int[,] CavalryPositionValues = {
+            {-50,-40,-30,-30,-30,-30,-40,-50 },
+            {-40,-20,  0,  5,  5,  0,-20,-40 },
+            {-30,  0, 15, 20, 20, 15,  0,-30 },
+            {-30,  5, 20, 25, 25, 20,  5,-30 },
+            {-30,  5, 20, 25, 25, 20,  5,-30 },
+            {-30,  0, 15, 20, 20, 15,  0,-30 },
+            {-40,-20,  5, 10, 10,  5,-20,-40 },
             {-50,-40,-30,-30,-30,-30,-40,-50 }
         };
 
@@ -326,6 +339,10 @@ namespace ChessConquest
             else if (piece is Vanguard)
             {
                 return VanguardPositionValues[row, col];
+            }
+            else if (piece is Cavalry)
+            {
+                return CavalryPositionValues[row, col];
             }
             
             return 0;

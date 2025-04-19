@@ -9,7 +9,7 @@ This is a Windows Forms-based GUI version of the Chess Conquest game. The applic
 - Visual highlighting of selected pieces and valid moves
 - Game status display showing current turn and game state
 - Option to play as either White or Black
-- Support for all standard chess pieces plus the custom Vanguard piece
+- Support for all standard chess pieces plus custom pieces like Cavalry and Vanguard
 - Strategic overworld campaign map with territory conquest
 - Multiple factions competing for control of the world
 - Faction selection screen with descriptions before starting a campaign
@@ -28,15 +28,23 @@ The overworld campaign adds a strategic layer to Chess Conquest:
 
 ### Factions
 
-The world is divided between five competing factions, each with its own theme and description. (Future updates will add unique armies and abilities for each faction.)
+The world is divided between five competing factions, each with its own theme and description:
 
-- **Iron Legion** (Blue)
-- **Crimson Order** (Red)
-- **Emerald Covenant** (Green)
-- **Golden Dynasty** (Yellow)
-- **Shadow Collective** (Gray)
+- **Iron Legion** (Blue): A disciplined army known for its resilience and heavy armor
+- **Crimson Order** (Red): A zealous force that excels in aggressive tactics and rapid strikes with their cavalry
+- **Emerald Covenant** (Green): Nature-bound warriors with cunning strategies and adaptability
+- **Golden Dynasty** (Yellow): A noble faction with a focus on wealth and influence
+- **Shadow Collective** (Gray): Masters of subterfuge and deception
 
 At the start of a campaign, you select which faction you want to play as. A description for each faction is shown in the selection screen.
+
+### Unique Army Compositions
+
+Each faction has its own army setup:
+
+- **Standard Army**: Uses the classic chess piece arrangement with standard pieces
+- **Iron Legion**: Uses two Vanguards in the center of their front line (replacing the middle pawns), giving them additional defensive capability
+- **Crimson Order**: Replaces Knights with Cavalry pieces and also replaces two pawns in front of bishops with Cavalry, giving them a total of 4 Cavalry units for enhanced mobility
 
 ### Battle System
 
@@ -109,12 +117,18 @@ The GUI application uses the same core chess logic as the console version, but w
 
 ## Custom Pieces
 
-The game includes the standard chess pieces plus a custom "Vanguard" piece that:
-- Can move diagonally 1 square
-- Can move horizontally up to 2 spaces
-- Can move vertically up to 2 spaces
-- Replaces the middle pawns in the standard setup
-- Is represented by diamond symbols (♢ for white and ♦ for black)
+The game includes custom pieces that different factions may use:
+
+### Cavalry
+- Moves like a Knight (L-shape)
+- Used exclusively by the Crimson Order faction
+- Replaces Knights in the back row and two pawns in front of bishops
+- Gives the Crimson Order a unique cavalry-focused army composition
+
+### Vanguard
+- Moves diagonally 1 square or horizontally/vertically up to 2 squares
+- Used by the Iron Legion faction to replace the middle pawns
+- Provides enhanced defensive capability on the front line
 
 ## System Requirements
 

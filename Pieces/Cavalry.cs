@@ -4,8 +4,8 @@ namespace ChessConquest.Pieces
 {
     public class Cavalry : Piece
     {
-        public override char Symbol => Color == PieceColor.White ? '\u2659' : '\u265F'; // Placeholder symbol
-
+        // Use the knight emoji for the Cavalry piece (Placeholder)
+        public override char Symbol => Color == PieceColor.White ? '\u2658' : '\u265E';
         public Cavalry(PieceColor color, Position position) : base(color, position) { }
 
         public override List<Position> GetValidMoves(Board board)
@@ -30,30 +30,43 @@ namespace ChessConquest.Pieces
                 }
             }
 
-            // Extended Cavalry moves: (±2,±2), cannot jump
-            int[,] cavalryMoves = {
-                {2, 2}, {2, -2}, {-2, 2}, {-2, -2}
+            // Horizontal/Vertical moves (1-2 squares, cannot jump)
+            int[,] directions = {
+                {-1, 0}, {1, 0}, // vertical (up, down)
+                {0, -1}, {0, 1}  // horizontal (left, right)
             };
-            for (int i = 0; i < 4; i++)
+
+            for (int dir = 0; dir < 4; dir++)
             {
-                int rowOffset = cavalryMoves[i, 0];
-                int colOffset = cavalryMoves[i, 1];
-                Position target = new Position(Position.Row + rowOffset, Position.Column + colOffset);
-                if (board.IsPositionInBounds(target))
+                int rowDir = directions[dir, 0];
+                int colDir = directions[dir, 1];
+
+                // Try moving 1 square
+                Position oneStep = new Position(Position.Row + rowDir, Position.Column + colDir);
+                if (board.IsPositionInBounds(oneStep))
                 {
-                    // Check both intermediate squares must be empty
-                    int rowStep = rowOffset / 2;
-                    int colStep = colOffset / 2;
-                    Position inter1 = new Position(Position.Row + rowStep, Position.Column);
-                    Position inter2 = new Position(Position.Row, Position.Column + colStep);
-                    if (board.GetPieceAt(inter1) == null && board.GetPieceAt(inter2) == null)
+                    Piece? pieceAtOneStep = board.GetPieceAt(oneStep);
+                    if (pieceAtOneStep == null || pieceAtOneStep.Color != Color)
                     {
-                        Piece? pieceAtTarget = board.GetPieceAt(target);
-                        if (pieceAtTarget == null || pieceAtTarget.Color != Color)
-                            validMoves.Add(target);
+                        validMoves.Add(oneStep);
+                        
+                        // If we can move one step and the square is empty, try two steps
+                        if (pieceAtOneStep == null)
+                        {
+                            Position twoStep = new Position(Position.Row + 2 * rowDir, Position.Column + 2 * colDir);
+                            if (board.IsPositionInBounds(twoStep))
+                            {
+                                Piece? pieceAtTwoStep = board.GetPieceAt(twoStep);
+                                if (pieceAtTwoStep == null || pieceAtTwoStep.Color != Color)
+                                {
+                                    validMoves.Add(twoStep);
+                                }
+                            }
+                        }
                     }
                 }
             }
+            
             return validMoves;
         }
 

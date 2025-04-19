@@ -25,11 +25,40 @@ namespace ChessConquestGUI
         {
             factions = new List<FactionInfo>
             {
-                new FactionInfo("Iron Legion", "A disciplined army known for its resilience and heavy armor. Masters of defense and attrition."),
-                new FactionInfo("Crimson Order", "A zealous force that excels in aggressive tactics and rapid strikes. Unyielding in battle."),
-                new FactionInfo("Emerald Covenant", "Nature-bound warriors with cunning strategies and adaptability. Masters of mobility and surprise."),
-                new FactionInfo("Golden Dynasty", "A noble faction with a focus on wealth and influence. Balanced armies with versatile abilities."),
-                new FactionInfo("Shadow Collective", "Masters of subterfuge and deception. Specialized in ambushes and unconventional warfare.")
+                new FactionInfo(
+                    "Iron Legion", 
+                    "A disciplined army known for its resilience and heavy armor. Masters of defense and attrition.",
+                    "Uses two Vanguards in the center of their front line (replacing the middle pawns)",
+                    new Dictionary<string, string> { 
+                        { "Vanguard", "Moves diagonally 1 square or horizontally/vertically up to 2 squares. Can capture in any of these directions." } 
+                    }
+                ),
+                new FactionInfo(
+                    "Crimson Order", 
+                    "A zealous force that excels in aggressive tactics and rapid strikes. Unyielding in battle.",
+                    "Uses four Cavalry units - replacing knights and the pawns in front of bishops",
+                    new Dictionary<string, string> { 
+                        { "Cavalry", "Moves like a knight (L-shape) or can move 1-2 spaces Horizontally or Vertically. Can only jump pieces when moving like a knight." } 
+                    }
+                ),
+                new FactionInfo(
+                    "Emerald Covenant", 
+                    "Nature-bound warriors with cunning strategies and adaptability. Masters of mobility and surprise.",
+                    "Uses the standard chess piece arrangement",
+                    new Dictionary<string, string>()
+                ),
+                new FactionInfo(
+                    "Golden Dynasty", 
+                    "A noble faction with a focus on wealth and influence. Balanced armies with versatile abilities.",
+                    "Uses the standard chess piece arrangement",
+                    new Dictionary<string, string>()
+                ),
+                new FactionInfo(
+                    "Shadow Collective", 
+                    "Masters of subterfuge and deception. Specialized in ambushes and unconventional warfare.",
+                    "Uses the standard chess piece arrangement",
+                    new Dictionary<string, string>()
+                )
             };
         }
 
@@ -107,11 +136,37 @@ namespace ChessConquestGUI
             {
                 if (hoveredFactionIndex >= 0)
                 {
-                    descLabel.Text = $"{factions[hoveredFactionIndex].Name}\n\n{factions[hoveredFactionIndex].Description}";
+                    var faction = factions[hoveredFactionIndex];
+                    string description = $"{faction.Name}\n\n{faction.Description}\n\nArmy Setup: {faction.ArmySetup}";
+                    
+                    // Add custom pieces information if there are any
+                    if (faction.CustomPieces != null && faction.CustomPieces.Count > 0)
+                    {
+                        description += "\n\nSpecial Units:";
+                        foreach (var piece in faction.CustomPieces)
+                        {
+                            description += $"\n• {piece.Key}: {piece.Value}";
+                        }
+                    }
+                    
+                    descLabel.Text = description;
                 }
                 else if (selectedFactionIndex >= 0)
                 {
-                    descLabel.Text = $"{factions[selectedFactionIndex].Name}\n\n{factions[selectedFactionIndex].Description}";
+                    var faction = factions[selectedFactionIndex];
+                    string description = $"{faction.Name}\n\n{faction.Description}\n\nArmy Setup: {faction.ArmySetup}";
+                    
+                    // Add custom pieces information if there are any
+                    if (faction.CustomPieces != null && faction.CustomPieces.Count > 0)
+                    {
+                        description += "\n\nSpecial Units:";
+                        foreach (var piece in faction.CustomPieces)
+                        {
+                            description += $"\n• {piece.Key}: {piece.Value}";
+                        }
+                    }
+                    
+                    descLabel.Text = description;
                 }
                 else
                 {
@@ -151,10 +206,15 @@ namespace ChessConquestGUI
     {
         public string Name { get; }
         public string Description { get; }
-        public FactionInfo(string name, string description)
+        public string ArmySetup { get; }
+        public Dictionary<string, string> CustomPieces { get; }
+
+        public FactionInfo(string name, string description, string armySetup = "", Dictionary<string, string> customPieces = null)
         {
             Name = name;
             Description = description;
+            ArmySetup = armySetup;
+            CustomPieces = customPieces ?? new Dictionary<string, string>();
         }
     }
 }
