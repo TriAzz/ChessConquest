@@ -1,5 +1,7 @@
 # Chess Conquest GUI
 
+*This project was created in large part using GitHub Copilot and Windsurf as part of the Deakin InnovAIte initiative investigating AI tools.*
+
 This is a Windows Forms-based GUI version of the Chess Conquest game. The application allows players to interact with the chess board through a graphical interface, clicking and dragging pieces to make moves. The game also features an overworld campaign map where players can conquer territories through chess battles.
 
 ## Features
